@@ -22,7 +22,14 @@
     return state.imgBase.replace(/\/$/, '') + '/' + p + (state.ver ? '?v=' + state.ver : '');
   };
 
+  const staticMode = () => {
+    if (state.mode !== 'static') state.mode = 'static';
+    return null;
+  };
+
   async function api(path, params) {
+    // 构建时注入的标记优先（build_cloud.py 会在 index.html 里写这个变量）
+    if (window.__SURUGAYA_STATIC__ === true) return staticApi(path, params || {});
     if (state.mode === 'static') return staticApi(path, params || {});
     const u = new URL(path, location.origin);
     Object.entries(params || {}).forEach(([k, v]) => { if (v !== '' && v != null) u.searchParams.set(k, v); });
@@ -30,11 +37,18 @@
     try {
       r = await fetch(u);
     } catch (e) {
-      state.mode = 'static';                 // 网络层失败 → 切静态
+      staticMode();                          // 网络层失败 → 切静态
       return staticApi(path, params || {});
     }
-    if (r.status === 404 && state.mode === null) {
-      state.mode = 'static';                 // 云端纯静态托管没有 /api/*
+    if (r.status === 404) {
+      staticMode();                          // 纯静态托管的 404
+      return staticApi(path, params || {});
+    }
+    // ⚠️ CF Pages 对不存在的路径**不做 404**，而是回退返回 index.html（200 + text/html）。
+    //    只判断 status 会漏，必须看 Content-Type 是不是 JSON，否则 r.json() 解析 HTML 直接抛错。
+    const ct = r.headers.get('content-type') || '';
+    if (!ct.includes('json')) {
+      staticMode();
       return staticApi(path, params || {});
     }
     if (!r.ok) throw new Error(await r.text());
