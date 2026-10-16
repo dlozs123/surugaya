@@ -1,0 +1,21 @@
+{
+ "generated_at": "2026-10-16 22:17:35",
+ "image_base": "https://surugaya.flan.uno",
+ "baseline": {
+  "date": null,
+  "count": 0,
+  "rounds": []
+ },
+ "daily": [
+  {
+   "date": "2026-10-15",
+   "count": 828
+  },
+  {
+   "date": "2026-10-16",
+   "count": 669
+  }
+ ],
+ "rounds_all": [],
+ "note": "云端版：只含每日上新；首批快照留在本地。判新口径=番号首次出现的日期。"
+}

@@ -1,0 +1,11 @@
+/index.html
+  Cache-Control: public, max-age=300
+
+/*.js
+  Cache-Control: public, max-age=3600
+
+/*.css
+  Cache-Control: public, max-age=3600
+
+/data/*
+  Cache-Control: public, max-age=300

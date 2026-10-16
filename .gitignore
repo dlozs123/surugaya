@@ -1,0 +1,5 @@
+# rclone 用的图片清单（本地生成，不进仓库）
+imglist.txt
+# 系统杂项
+.DS_Store
+Thumbs.db

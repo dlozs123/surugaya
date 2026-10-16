@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>骏河屋 <<東方>> 新入荷 · 抓取结果</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">駿</span>
+    <div>
+      <h1>骏河屋 <code>&lt;&lt;東方&gt;&gt;</code> 新入荷 · 抓取结果</h1>
+      <p class="sub" id="subtitle">加载中…</p>
+    </div>
+  </div>
+  <div class="topstats" id="topstats"></div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<section class="filters">
+  <input type="search" id="q" placeholder="搜索商品名 / 备考 / 品牌 / 番号…">
+
+  <div class="catbox" id="catbox">
+    <button type="button" id="catBtn" class="catbtn">分类：全部 <span class="caret">▾</span></button>
+    <div class="catpanel" id="catpanel" hidden>
+      <div class="catpanel-head">
+        <input type="search" id="catSearch" placeholder="筛选分类名…">
+        <button type="button" class="mini" id="catAll">全选</button>
+        <button type="button" class="mini" id="catNone">取消全选</button>
+      </div>
+      <div class="catpanel-list" id="catList"></div>
+      <div class="catpanel-foot">
+        <span id="catSummary">未选择</span>
+        <button type="button" class="mini" id="catClose">收起</button>
+      </div>
+    </div>
+  </div>
+
+  <select id="stockfilter">
+    <option value="">库存：全部</option>
+    <option value="instock">本店有货</option>
+    <option value="branch">本店无货 · 分店有货</option>
+    <option value="none">完全无货</option>
+  </select>
+  <select id="sort">
+    <option value="default">默认排序（榜单顺序）</option>
+    <option value="price_asc">价格 低→高</option>
+    <option value="price_desc">价格 高→低</option>
+    <option value="date_desc">发售日 新→旧</option>
+    <option value="branch_desc">分店数 多→少</option>
+    <option value="store_price_asc">分店最低价 低→高</option>
+  </select>
+  <input type="number" id="pmin" placeholder="最低¥" min="0" step="100">
+  <input type="number" id="pmax" placeholder="最高¥" min="0" step="100">
+  <label class="chk"><input type="checkbox" id="withimg"> 只看有图</label>
+  <label class="chk"><input type="checkbox" id="nomismatch" checked> 排除误匹配</label>
+  <button id="reset" class="btn-ghost">重置</button>
+</section>
+
+<main>
+  <div class="resultbar" id="resultbar"></div>
+  <div class="grid" id="grid"></div>
+  <div class="pager" id="pager"></div>
+</main>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-mask" data-close></div>
+  <div class="modal-body">
+    <button class="modal-close" data-close>×</button>
+    <div class="modal-img" id="m-img"></div>
+    <div class="modal-info" id="m-info"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
