@@ -271,6 +271,8 @@
     const flags = [];
     if (r.is_mismatch) flags.push('<span class="flag">疑似误匹配</span>');
     else if (r.is_touhou) flags.push('<span class="flag touhou">東方Project</span>');
+    // 发售日早于 18 个月 → 大概率是索引回归的老货，不是新上架（列表页 badges 全是「新入荷」，没区分度）
+    if (r.is_recent === false) flags.push('<span class="flag old">旧货</span>');
     (r.badges || []).slice(0, 1).forEach(b => flags.push(`<span class="flag new">${esc(b)}</span>`));
     const si = stockInfo(r);
     if (si && si.cls === 'branch') flags.push('<span class="flag branch">分店有货</span>');
@@ -355,7 +357,8 @@
       ['状态', r.condition || '—'],
       ['分类', r.category_full || r.category || '—'],
       ['厂商', r.maker || r.brand || '—'],
-      ['发售日', r.release_date || '—'],
+      ['发售日', (r.release_date || '—') +
+        (r.is_recent === false ? '<span style="color:#9aa3ad;font-size:11px">（较早，可能是索引回归的老货）</span>' : '')],
       ['マケプレ', r.makeple_price ? yen(r.makeple_price) : '—'],
     ];
 
