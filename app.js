@@ -75,7 +75,12 @@
       ' ' + (r.brand || '') + ' ' + (r.maker || '') + ' ' + (r.category_full || '') + ' ' + r.id)
       .toLowerCase().includes(kw));
     const cats = (p.cats || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (cats.length) out = out.filter(r => cats.some(c => (r.category_full || '').startsWith(c)));
+    // 「(未分类)」必须精确匹配 —— 空字符串永远 startswith 不到它
+    const catMatch = (r, w) => {
+      const c = r.cat || '(未分类)';
+      return w === '(未分类)' ? c === w : c.startsWith(w);
+    };
+    if (cats.length) out = out.filter(r => cats.some(c => catMatch(r, c)));
     if (p.nomismatch === 1 || p.nomismatch === '1') out = out.filter(r => !r.is_mismatch);
     if (p.withimg === 1 || p.withimg === '1') out = out.filter(r => r.imgs && r.imgs.thumb);
     const st = p.stock || '';
@@ -102,7 +107,7 @@
     const rows = await staticSet(p.set || '');
     if (path === '/api/categories') {
       const m = new Map();
-      rows.forEach(r => { const c = r.category_full || '(未分类)'; m.set(c, (m.get(c) || 0) + 1); });
+      rows.forEach(r => { const c = r.cat || '(未分类)'; m.set(c, (m.get(c) || 0) + 1); });
       return [...m.entries()].map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
     }
@@ -293,7 +298,7 @@
       <div class="body">
         <div class="nm" title="${esc(r.name)}">${esc(r.name)}</div>
         <div class="price">${price}</div>
-        <div class="cat" title="${esc(r.category_full || r.category || '')}">${esc(r.category || r.category_full || '')}</div>
+        <div class="cat" title="${esc(r.category_full || r.category || '')}">${esc(r.cat || '')}</div>
         <div class="meta"><span>${esc(r.release_date || '')}</span>
           <span class="${si ? 'stk ' + si.cls : ''}">${si ? esc(si.text) : ''}</span></div>
       </div></article>`;
@@ -355,7 +360,7 @@
         : (r.min_price ? yen(r.min_price) : '—')],
       ['定価', r.list_price ? yen(r.list_price) : '—'],
       ['状态', r.condition || '—'],
-      ['分类', r.category_full || r.category || '—'],
+      ['分类', r.cat || '—'],
       ['厂商', r.maker || r.brand || '—'],
       ['发售日', (r.release_date || '—') +
         (r.is_recent === false ? '<span style="color:#9aa3ad;font-size:11px">（较早，可能是索引回归的老货）</span>' : '')],
