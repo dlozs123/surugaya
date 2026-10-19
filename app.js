@@ -84,9 +84,10 @@
     if (p.nomismatch === 1 || p.nomismatch === '1') out = out.filter(r => !r.is_mismatch);
     if (p.withimg === 1 || p.withimg === '1') out = out.filter(r => r.imgs && r.imgs.thumb);
     const st = p.stock || '';
-    if (st === 'instock') out = out.filter(r => (r.stock || 0) > 0);
-    else if (st === 'branch') out = out.filter(r => !(r.stock || 0) && (r.store_count || 0) > 0);
-    else if (st === 'none') out = out.filter(r => !(r.stock || 0) && r.store_count === 0);
+    if (st === 'buyable') out = out.filter(r => r.buyable === true);
+    else if (st === 'instock') out = out.filter(r => r.stock_state === 'in');
+    else if (st === 'branch') out = out.filter(r => r.stock_state === 'branch');
+    else if (st === 'none') out = out.filter(r => r.stock_state === 'none');
     const pmin = parseInt(p.pmin, 10), pmax = parseInt(p.pmax, 10);
     if (!isNaN(pmin)) out = out.filter(r => (r.price || 0) >= pmin);
     if (!isNaN(pmax)) out = out.filter(r => (r.price || 0) <= pmax);
@@ -263,11 +264,14 @@
 
   // 库存状态：本店有货 / 仅分店有货 / 全渠道无货 / 未抓
   // （分店价格不放在这里，卡片的价格位已经显示最低价「¥xxx起」）
+  // 库存状态统一用后端算好的 stock_state，**不要**用 r.stock ——
+  // stock 是详情页字段，全量快照没抓详情时全是 null，会把「本店有货」误显示成无货。
   function stockInfo(r) {
-    if (r.stock > 0) return { cls: 'in', text: `本店有货 ${r.stock}` };
-    if (r.store_count > 0) return { cls: 'branch', text: `分店${r.store_count}家有货` };
-    if (r.store_count === 0) return { cls: 'none', text: '全渠道无货' };
-    return null;
+    const st = r.stock_state;
+    if (st === 'in') return { cls: 'in', text: r.stock > 0 ? `本店有货 ${r.stock}` : '本店有货' };
+    if (st === 'branch') return { cls: 'branch', text: `分店${r.store_count}家有货` };
+    if (st === 'none') return { cls: 'none', text: '全渠道无货' };
+    return null;   // unknown（没抓过分店）不显示徽标
   }
   const pricesSpread = (r) => r.min_price && r.max_price && r.min_price !== r.max_price;
 
