@@ -142,28 +142,61 @@
     statBlocks.push(`<div><b>${state.daily.length}</b><span>有上新天数</span></div>`);
     $('#topstats').innerHTML = statBlocks.join('');
 
+    // 只常显最近 8 天，更早的收进「更早」按钮。日期多了会换行挤爆顶栏。
+    const RECENT_N = 8;
+    const recent = state.daily.slice(-RECENT_N);
+    const older = state.daily.slice(0, -RECENT_N);
+    const curDate = (state.set || '').replace('daily/', '');
+    // 当前选中的日期若落在「更早」里，也要显示出来，否则用户看不出自己在看哪天
+    const curInOlder = older.find(d => d.date === curDate);
+
     const tabs = [];
     if (state.hasBaseline) {
       tabs.push(`<button data-set="baseline" class="on">首批快照<span class="n">${s.baseline.count.toLocaleString()}</span></button>`);
     }
+    if (curInOlder) {
+      tabs.push(`<button data-set="daily/${curInOlder.date}" class="on">${curInOlder.date}` +
+        `<span class="n">${curInOlder.count.toLocaleString()} 件上新</span></button>`);
+    }
     // 云端版默认落在最近一天（高亮也要跟上，别出现"高亮 A 实际显示 B"）
-    const defaultDaily = state.hasBaseline ? null : state.daily[state.daily.length - 1];
-    state.daily.forEach((d) => tabs.push(
+    const defaultDaily = state.hasBaseline ? null : recent[recent.length - 1];
+    recent.forEach((d) => tabs.push(
       `<button data-set="daily/${d.date}" class="${defaultDaily && d === defaultDaily ? 'on' : ''}">` +
       `${d.date}<span class="n">${d.count.toLocaleString()} 件上新</span></button>`));
-    $('#tabs').innerHTML = tabs.join('');
+    if (older.length) {
+      tabs.push(`<button id="olderBtn" class="${curInOlder ? 'on' : ''}">更早` +
+        `<span class="n">${older.length} 天</span></button>`);
+    }
+    $('#tabs').innerHTML = tabs.join('') +
+      (older.length ? `<div class="olderpop" id="olderPop" hidden>` +
+        older.map(d => `<button data-set="daily/${d.date}">${d.date}` +
+          `<span class="n">${d.count} 件</span></button>`).join('') + `</div>` : '');
     // 云端版没有 baseline tab，默认数据集落到最近一天的上新
     if (!state.hasBaseline && state.daily.length) {
       state.set = 'daily/' + state.daily[state.daily.length - 1].date;
     }
     $('#tabs').addEventListener('click', (e) => {
+      // 展开 / 收起「更早」浮层
+      if (e.target.closest('#olderBtn')) {
+        const pop = $('#olderPop');
+        if (pop) pop.hidden = !pop.hidden;
+        e.stopPropagation();
+        return;
+      }
       const b = e.target.closest('button[data-set]');
       if (!b) return;
-      [...$('#tabs').children].forEach(x => x.classList.toggle('on', x === b));
+      const pop = $('#olderPop');
+      if (pop) pop.hidden = true;
+      [...document.querySelectorAll('#tabs > button')].forEach(x => x.classList.toggle('on', x === b));
       state.set = b.dataset.set; state.offset = 0;
       state.cats = []; updateCatBtn();
       loadCategories(); load();
     });
+    // 点空白处收起浮层
+    document.addEventListener('click', (e) => {
+      const pop = $('#olderPop');
+      if (pop && !pop.hidden && !e.target.closest('#tabs')) pop.hidden = true;
+    }, { passive: true });
   }
 
   /* ---------------- 分类多选 ---------------- */
