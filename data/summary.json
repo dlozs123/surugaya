@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-25 23:14:59",
+ "generated_at": "2026-10-26 12:43:43",
  "image_base": "https://surugaya.flan.uno",
  "baseline": {
   "date": null,
@@ -50,6 +50,10 @@
   {
    "date": "2026-10-25",
    "count": 50
+  },
+  {
+   "date": "2026-10-26",
+   "count": 5
   }
  ],
  "rounds_all": [],
