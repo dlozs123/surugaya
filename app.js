@@ -142,6 +142,12 @@
     statBlocks.push(`<div><b>${state.daily.length}</b><span>有上新天数</span></div>`);
     $('#topstats').innerHTML = statBlocks.join('');
 
+    // 打开网页默认落在最近一天（云端没有 baseline，不能停在 'baseline'）。
+    // 只在首次加载时设，避免用户切到别的日期后又被拽回来。
+    if (!state.hasBaseline && state.daily.length && !state._setInit) {
+      state.set = 'daily/' + state.daily[state.daily.length - 1].date;
+      state._setInit = true;
+    }
     renderTabs();
     if (!state._tabsBound) { bindTabs(); state._tabsBound = true; }
   }
