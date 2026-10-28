@@ -160,13 +160,14 @@
     if (state.hasBaseline) {
       tabs.push(`<button data-set="baseline" class="${state.set === 'baseline' ? 'on' : ''}">首批快照<span class="n">${(s.baseline && s.baseline.count || 0).toLocaleString()}</span></button>`);
     }
+    // 从新到旧：最左边是最近一天
     if (curInOlder) {
       tabs.push(`<button data-set="daily/${curInOlder.date}" class="on">${curInOlder.date}` +
         `<span class="n">${curInOlder.count.toLocaleString()} 件上新</span></button>`);
     }
-    recent.forEach((d) => tabs.push(
+    recent.slice().reverse().forEach((d) => tabs.push(
       `<button data-set="daily/${d.date}" class="${state.set === 'daily/' + d.date ? 'on' : ''}">` +
-      `${d.date}<span class="n">${d.count.toLocaleString()} 件上新</span></button>`));
+      `${d.date.slice(5)}<span class="n">${d.count.toLocaleString()} 件上新</span></button>`));
     if (older.length) {
       tabs.push(`<button id="olderBtn" class="${curInOlder ? 'on' : ''}">更早` +
         `<span class="n">${older.length} 天</span></button>`);
@@ -174,7 +175,7 @@
     const scrollTop = window.scrollY;
     $('#tabs').innerHTML = tabs.join('') +
       (older.length ? `<div class="olderpop" id="olderPop" hidden>` +
-        older.map(d => `<button data-set="daily/${d.date}">${d.date}` +
+        older.slice().reverse().map(d => `<button data-set="daily/${d.date}">${d.date}` +
           `<span class="n">${d.count} 件</span></button>`).join('') + `</div>` : '');
     window.scrollTo(0, scrollTop);
   }
