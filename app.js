@@ -130,11 +130,14 @@
     if (s.image_base) state.imgBase = s.image_base;
     state.hasBaseline = !!(s.baseline && s.baseline.count > 0);
 
-    const parts = [];
-    if (state.hasBaseline) parts.push(`首日快照 ${s.baseline.count.toLocaleString()} 件`);
-    parts.push(`每日上新 ` + state.daily.map(d => `${d.date.slice(5)} ${d.count} 件`).join(' / '));
-    parts.push(`数据生成于 ${s.generated_at}`);
-    $('#subtitle').textContent = parts.join(' · ');
+    // 副标题只放一句摘要。
+    // 原来把「每天上新的件数」全平铺在这里（20 天就是 200+ 字符），手机上直接吃掉半屏；
+    // 而这些数字在每个日期 tab 上已经有了，属于重复信息，删掉不丢东西。
+    const totalNew = state.daily.reduce((a, d) => a + d.count, 0);
+    // 尽量压到一行（390px 窄屏也不换行）：只留「更新时间 + 天数 + 总件数」
+    const _ts = String(s.generated_at || '').slice(5, 16);   // 11-16 13:04
+    $('#subtitle').textContent =
+      `更新于 ${_ts}｜${state.daily.length} 天 · ${totalNew.toLocaleString()} 件`;
 
     const statBlocks = [];
     if (state.hasBaseline) statBlocks.push(`<div><b>${s.baseline.count.toLocaleString()}</b><span>首批快照</span></div>`);
